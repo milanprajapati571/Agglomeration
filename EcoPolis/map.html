@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            font-family: "Open Sans", serif;
+    font-optical-sizing: auto;
+        }
+        body { 
+            background-color: rgb(93, 208, 93); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+        }
+
+       
+        .container {
+            background-color: white; 
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 80%;
+            height: 70%;
+            position: absolute;
+            top: 10%;
+        }
+
+        
+        p {
+            text-align: center;
+            color: #333; 
+             margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 100;
+        } 
+
+   
+        #map {
+            position: absolute;
+            height: 80%;
+            width: 90%;
+            left: 5%;
+            border-radius: 8px; 
+            border: 2px solid #ddd; 
+            z-index: 20;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>Interactive Map Interface</p>
+        
+        <div id="map"></div>
+    </div>
+    <script>
+        const map = L.map('map').setView([20.5937, 78.9629], 5); // Centered on India
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+        }).addTo(map);
+
+        map.on('click', function (e) {
+            const { lat, lng } = e.latlng;
+            console.log(`Clicked location: Latitude ${lat}, Longitude ${lng}`);
+            fetchRegionData(lat, lng);
+        });
+
+        function fetchRegionData(lat, lng) {
+            // Example API call
+            const dummyData = {
+                lat,
+                lng,
+                vegetation: 'Tropical Rainforest',
+                wildlife: 'Elephants, Tigers, Monkeys',
+                waterBodies: 'Rivers, Lakes',
+            };
+
+            showRegionData(dummyData);
+        }
+
+        function showRegionData(data) {
+            const { lat, lng, vegetation, wildlife, waterBodies } = data;
+
+            L.popup()
+                .setLatLng([lat, lng])
+                .setContent(`
+                    <h3>Region Data</h3>
+                    <p><strong>Vegetation:</strong> ${vegetation}</p>
+                    <p><strong>Wildlife:</strong> ${wildlife}</p>
+                    <p><strong>Water Bodies:</strong> ${waterBodies}</p>
+                `)
+                .openOn(map);
+        }
+    </script>
+</body>
+</html>
+

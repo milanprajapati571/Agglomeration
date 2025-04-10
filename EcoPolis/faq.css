@@ -1,0 +1,119 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: "Open Sans", serif;
+    font-optical-sizing: auto;
+      
+}
+body{
+    background-color: rgb(93, 208, 93);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: -1;
+}
+.container{
+    position: absolute;
+  background-color: rgb(228, 231, 221);
+  height: 80%;
+  top:10%;
+  width: 86%;
+  left: 7%;
+  z-index: 0;
+  border-radius: 35px;
+}
+.content{
+    position: relative;
+    top:15%;
+    text-align: center;
+    width: 50%;
+    
+}
+
+nav{
+  position: absolute;
+  width:60%;
+  right: 35%;
+  margin-top: 3%;
+  display: flex;
+  justify-content: space-between;
+  /* border: 2px solid black; */
+  height: 8%;
+  align-items: center;
+  z-index: 45;
+}
+nav a{
+    margin:10px;
+    padding: 10px;
+    text-decoration: none;
+    outline: none;
+    font: bolder;
+    color: black;
+    font-size: large;
+}
+.image{
+    position: absolute;
+    left: 55%;
+    top: 3%;
+    filter: contrast(120%);
+    filter: saturate(130%);
+    z-index: 4;
+} 
+.content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* border: 2px solid black; */
+    flex-direction: column;
+    position: absolute;
+    width: 50%;
+    left: 3%;
+    height: 70%;
+}
+.content p{
+    font-size: xx-large;
+    position: absolute;
+    top:10%;
+    /* padding-top: 3%; */
+/* margin: 23px; */
+}
+
+
+.fade-in {
+    opacity: 1;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+.questions{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+    
+}
+.sliders{
+    position: absolute;
+    bottom:14%;
+    right: 0%;
+}
+.sliders:hover{
+    cursor: pointer;
+}
+footer{
+    position: absolute;
+    bottom:4%;
+    width:50%;
+    /* right:40%; */
+    left: 3%;
+    /* border: 2px solid black; */
+    height: 8%;
+    display: flex;
+    align-items: center;
+}
+footer span{ 
+    padding: 3%;
+}

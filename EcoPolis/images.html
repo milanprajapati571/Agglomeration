@@ -1,0 +1,380 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    <style>
+        /* Previous styles remain the same */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background-color: #98d392;
+        }
+
+        .upload-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        input[type="file"],
+        input[type="text"] {
+            display: block;
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+
+        .timer {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* New styles for JSON display */
+        .json-display {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .data-section {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .data-section h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .data-item {
+            display: flex;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background-color: white;
+            border-radius: 4px;
+        }
+
+        .data-label {
+            font-weight: bold;
+            min-width: 200px;
+            color: #34495e;
+        }
+
+        .data-value {
+            color: #576574;
+        }
+
+        .suggestions-text {
+            white-space: pre-wrap;
+            line-height: 1.5;
+            color: #2c3e50;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h1>Enter The Place Name And Upload Two Images</h1>
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="placeName">Place Name:</label>
+                <input type="text" id="placeName" name="placeName" required>
+            </div>
+            <div class="form-group">
+                <label for="fileInput1">First Image:</label>
+                <input type="file" id="fileInput1" name="image1" accept="image/*" required>
+                <img id="preview1" style="max-width: 200px; display: none;">
+            </div>
+            <div class="form-group">
+                <label for="fileInput2">Second Image:</label>
+                <input type="file" id="fileInput2" name="image2" accept="image/*" required>
+                <img id="preview2" style="max-width: 200px; display: none;">
+            </div>
+            <button type="submit" id="submitButton">Upload Images</button>
+        </form>
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            Uploading images... Please wait
+            <div id="timer" class="timer">Time elapsed: 0:00</div>
+        </div>
+        <div id="responseMessage"></div>
+        
+        <!-- New JSON display section -->
+        <div id="jsonDisplay" class="json-display">
+            <h2>Analysis Results</h2>
+            <div class="data-section">
+                <h3>Risk Assessment</h3>
+                <div id="riskScores"></div>
+            </div>
+            <div class="data-section">
+                <h3>Climate Data Comparison</h3>
+                <div id="climateData"></div>
+            </div>
+            <div class="data-section">
+                <h3>Vegetation Analysis</h3>
+                <div id="vegetationData"></div>
+            </div>
+            <div class="data-section">
+                <h3>Climate Changes</h3>
+                <div id="climateChanges"></div>
+            </div>
+            <div class="data-section">
+                <h3>Recommendations</h3>
+                <div id="suggestions" class="suggestions-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput1 = document.getElementById('fileInput1');
+        const fileInput2 = document.getElementById('fileInput2');
+        const placeName = document.getElementById('placeName');
+        const preview1 = document.getElementById('preview1');
+        const preview2 = document.getElementById('preview2');
+        const submitButton = document.getElementById('submitButton');
+        const loading = document.getElementById('loading');
+        const responseMessage = document.getElementById('responseMessage');
+        const timerElement = document.getElementById('timer');
+        const jsonDisplay = document.getElementById('jsonDisplay');
+
+        let uploadTimer;
+        let startTime;
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            timerElement.textContent = `Time elapsed: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function previewImage(file, previewElement) {
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewElement.src = e.target.result;
+                    previewElement.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function formatValue(value) {
+            return typeof value === 'number' ? value.toFixed(2) : value;
+        }
+
+        function createDataItem(label, value) {
+            return `
+                <div class="data-item">
+                    <span class="data-label">${label}:</span>
+                    <span class="data-value">${formatValue(value)}</span>
+                </div>
+            `;
+        }
+
+        function displayJsonResponse(data) {
+            jsonDisplay.style.display = 'block';
+
+            // Risk Assessment
+            document.getElementById('riskScores').innerHTML = `
+                ${createDataItem('Biodiversity Risk Score', data.biodiversity_risk_score)}
+                ${createDataItem('Land Vegetation Ratio (LVR)', data.lvr)}
+            `;
+
+            // Climate Data
+            document.getElementById('climateData').innerHTML = `
+                <div class="data-item">
+                    <span class="data-label">Pre-Climate Data:</span>
+                    <span class="data-value">
+                        Temperature: ${formatValue(data.pre_climate_data.temperature)}°C, 
+                        Humidity: ${formatValue(data.pre_climate_data.humidity)}%, 
+                        Rain: ${formatValue(data.pre_climate_data.rain)}mm, 
+                        Wind: ${formatValue(data.pre_climate_data.wind)}m/s
+                    </span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Post-Climate Data:</span>
+                    <span class="data-value">
+                        Temperature: ${formatValue(data.post_climate_data.temperature)}°C, 
+                        Humidity: ${formatValue(data.post_climate_data.humidity)}%, 
+                        Rain: ${formatValue(data.post_climate_data.rain)}mm, 
+                        Wind: ${formatValue(data.post_climate_data.wind)}m/s
+                    </span>
+                </div>
+            `;
+
+            // Vegetation Analysis
+            document.getElementById('vegetationData').innerHTML = `
+                ${createDataItem('Pre-Vegetation Percentage', data.vegetative_percentage.pre)}
+                ${createDataItem('Post-Vegetation Percentage', data.vegetative_percentage.post)}
+            `;
+
+            // Climate Changes
+            document.getElementById('climateChanges').innerHTML = `
+                ${createDataItem('Temperature Change', data.differences.temperature)}
+                ${createDataItem('Humidity Change', data.differences.humidity)}
+                ${createDataItem('Rain Change', data.differences.rain)}
+                ${createDataItem('Wind Change', data.differences.wind)}
+            `;
+
+            // Suggestions
+            document.getElementById('suggestions').textContent = data.suggestions;
+        }
+
+        fileInput1.addEventListener('change', () => previewImage(fileInput1.files[0], preview1));
+        fileInput2.addEventListener('change', () => previewImage(fileInput2.files[0], preview2));
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const image1 = fileInput1.files[0];
+            const image2 = fileInput2.files[0];
+            const place = placeName.value.trim();
+
+            if (!image1 || !image2) {
+                showMessage('Please select both images before uploading!', 'error');
+                return;
+            }
+
+            if (!place) {
+                showMessage('Please enter a place name!', 'error');
+                return;
+            }
+
+            submitButton.disabled = true;
+            loading.style.display = 'block';
+            responseMessage.textContent = '';
+            jsonDisplay.style.display = 'none';
+            startTime = Date.now();
+            uploadTimer = setInterval(updateTimer, 1000);
+
+            const formData = new FormData();
+            formData.append('image1', image1);
+            formData.append('image2', image2);
+            formData.append('placeName', place);
+
+            try {
+                const response = await fetch('http://159.89.167.2:5001/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage('Files uploaded successfully!', 'success');
+                    displayJsonResponse(result);
+                    uploadForm.reset();
+                    preview1.style.display = 'none';
+                    preview2.style.display = 'none';
+                } else {
+                    showMessage(`Error uploading files: ${JSON.stringify(result)}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Network error: ${error.message}. Please check your connection and try again.`, 'error');
+            } finally {
+                submitButton.disabled = false;
+                loading.style.display = 'none';
+                clearInterval(uploadTimer);
+            }
+        });
+
+        function showMessage(message, type) {
+            responseMessage.className = `message ${type}`;
+            responseMessage.textContent = message;
+        }
+    </script>
+</body>
+</html>
